@@ -1,6 +1,9 @@
 using CodeChallenge.Application.Mapping;
 using CodeChallenge.Domain.Settings;
+using CodeChallenge.Infrastructure.EntityFramework;
 using CodeChallenge.Infrastructure.HttpHandlers;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Options;
 using System.Reflection;
 
@@ -23,6 +26,9 @@ builder.Services.AddHttpClient("CodeChallengeLogin", ConfigureCodeChallengeHttpC
 builder.Services.AddHttpClient("CodeChallenge", ConfigureCodeChallengeHttpClient)
     .AddHttpMessageHandler<CodeChallengeLoginHandler>();
 
+builder.Services.AddDbContext<CodeChallengeContext>(x =>
+    x.UseInMemoryDatabase(databaseName: "CodeChallengeDb"));
+
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
@@ -37,10 +43,21 @@ app.UseAuthorization();
 
 app.MapControllers();
 
+CreateDatabase(app);
+
 app.Run();
 
 static void ConfigureCodeChallengeHttpClient(IServiceProvider sp, HttpClient httpClient)
 {
     var settings = sp.GetRequiredService<IOptions<CodeChallengeApiSettings>>().Value;
     httpClient.BaseAddress = new Uri(settings.BaseUrl);
+}
+
+static void CreateDatabase(WebApplication app)
+{
+    using var scope = app.Services.CreateScope();
+
+    var context = scope.ServiceProvider.GetRequiredService<CodeChallengeContext>();
+
+    context.Database.EnsureCreated();
 }
