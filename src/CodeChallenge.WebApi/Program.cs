@@ -1,13 +1,24 @@
 using CodeChallenge.Application.Mapping;
+using CodeChallenge.Application.Services;
+using CodeChallenge.Application.Services.Interfaces;
+using CodeChallenge.Domain.Clients;
+using CodeChallenge.Domain.Repositories;
+using CodeChallenge.Domain.Services;
+using CodeChallenge.Domain.Services.Interfaces;
 using CodeChallenge.Domain.Settings;
+using CodeChallenge.Infrastructure.Clients;
 using CodeChallenge.Infrastructure.EntityFramework;
 using CodeChallenge.Infrastructure.HttpHandlers;
+using CodeChallenge.Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Options;
 using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
+
+
+builder.Services.Configure<CodeChallengeApiSettings>(
+    builder.Configuration.GetSection(nameof(CodeChallengeApiSettings)));
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -28,6 +39,8 @@ builder.Services.AddHttpClient("CodeChallenge", ConfigureCodeChallengeHttpClient
 
 builder.Services.AddDbContext<CodeChallengeContext>(x =>
     x.UseInMemoryDatabase(databaseName: "CodeChallengeDb"));
+
+RegisterServices(builder.Services);
 
 var app = builder.Build();
 
@@ -60,4 +73,16 @@ static void CreateDatabase(WebApplication app)
     var context = scope.ServiceProvider.GetRequiredService<CodeChallengeContext>();
 
     context.Database.EnsureCreated();
+}
+
+static void RegisterServices(IServiceCollection services)
+{
+    services.AddScoped<IBasketAppService, BasketAppService>();
+    services.AddScoped<IProductAppService, ProductAppService>();
+    services.AddScoped<IBasketService, BasketService>();
+    services.AddScoped<IProductService, ProductService>();
+    services.AddScoped<IBasketRepository, BasketRepository>();
+    services.AddScoped<IProductRepository, ProductRepository>();
+    services.AddScoped<ICodeChallengeApiClient, CodeChallengeApiClient>();
+    services.AddScoped<CodeChallengeLoginHandler>();
 }

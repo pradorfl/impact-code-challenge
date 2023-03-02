@@ -1,11 +1,12 @@
-﻿using CodeChallenge.Domain.Entities;
+﻿using CodeChallenge.Domain.Clients;
+using CodeChallenge.Domain.Entities;
 using CodeChallenge.Domain.Settings;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Net.Http.Json;
 
 namespace CodeChallenge.Infrastructure.Clients;
-public sealed class CodeChallengeApiClient
+public sealed class CodeChallengeApiClient : ICodeChallengeApiClient
 {
     private readonly CodeChallengeApiSettings _settings;
     private readonly ILogger<CodeChallengeApiClient> _logger;
