@@ -20,6 +20,9 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.Configure<CodeChallengeApiSettings>(
     builder.Configuration.GetSection(nameof(CodeChallengeApiSettings)));
 
+builder.Services.Configure<GeneralSettings>(
+    builder.Configuration.GetSection(nameof(GeneralSettings)));
+
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -86,3 +89,5 @@ static void RegisterServices(IServiceCollection services)
     services.AddScoped<ICodeChallengeApiClient, CodeChallengeApiClient>();
     services.AddScoped<CodeChallengeLoginHandler>();
 }
+
+public partial class Program { }
